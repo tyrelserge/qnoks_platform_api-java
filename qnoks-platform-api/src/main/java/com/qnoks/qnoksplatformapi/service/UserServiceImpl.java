@@ -12,6 +12,7 @@ import org.springframework.util.StringUtils;
 import com.qnoks.qnoksplatformapi.Constants;
 import com.qnoks.qnoksplatformapi.entity.Settings;
 import com.qnoks.qnoksplatformapi.entity.Staff;
+import com.qnoks.qnoksplatformapi.entity.Client;
 import com.qnoks.qnoksplatformapi.entity.Role;
 import com.qnoks.qnoksplatformapi.entity.Upwd;
 import com.qnoks.qnoksplatformapi.entity.User;
@@ -22,6 +23,7 @@ import com.qnoks.qnoksplatformapi.model.RoleReq;
 import com.qnoks.qnoksplatformapi.model.UserReq;
 import com.qnoks.qnoksplatformapi.repository.SettingsRepository;
 import com.qnoks.qnoksplatformapi.repository.StaffRepository;
+import com.qnoks.qnoksplatformapi.repository.ClientRepository;
 import com.qnoks.qnoksplatformapi.repository.RoleRepository;
 import com.qnoks.qnoksplatformapi.repository.UpwdRepository;
 import com.qnoks.qnoksplatformapi.repository.UserRepository;
@@ -165,7 +167,6 @@ public class UserServiceImpl implements UserService {
   }
 
 
-
   public Role toUpdateRole(Integer roleId, RoleReq roleData) {
     Optional<Role> currentRole = roleRepository.findById(roleId);
     if (!currentRole.isPresent()) {
@@ -197,10 +198,16 @@ public class UserServiceImpl implements UserService {
   }
 
 
+
+  //------------------------------------
+  //  STAFF SERVICES
+  //------------------------------------
+
+
   @Autowired
   private StaffRepository staffRepository;
 
-  
+
   @Override
   public List<Staff> getAllStaff() {
     return staffRepository.findAll();
@@ -262,7 +269,76 @@ public class UserServiceImpl implements UserService {
 
     return addPassword(user.getUserId(), pwd);
   }
+
+
+  //------------------------------------
+  //  CLIENT SERVICES
+  //------------------------------------
+
+
+  @Autowired
+  private ClientRepository clientRepository;
+
+
+  @Override
+  public List<Client> getAllClient() {
+    return clientRepository.findAll();
+  }
+
+  @Override
+  public Object toCreateClient(UserReq data) {
+
+    Object UserRes = toCreateUser(data);
+    
+    if (UserRes==null) return null;
+    User user = (User) UserRes; 
+
+    String status = "linked";
+    
+    if (user.getStatus()!=null && user.getStatus().equalsIgnoreCase(status))
+      return Constants.EXISTS;
+
+    if (clientRepository.saveClient(user.getUserId())!=1) 
+      return null;
+
+    if (!setUserStatus(user.getUserId(), status).equalsIgnoreCase(Constants.DONE))
+      return null;
+
+    return clientRepository.fetchLastSavingClient();
+  }
+
+  @Override
+  public Client getClientData(Integer clientId) {
+    return clientRepository.findById(clientId).orElseThrow(
+      () -> new ResourceNotFoundException("The staff id " + clientId + " is not found !"));
+  }
+
+  @Override
+  public String setClientStatus(Integer clientId, String status) {
+    return clientRepository.executeSetClientStatus(clientId, status)!=1 ? null : Constants.DONE;
+  }
+
+  @Override
+  public Client toClientLogin(Login loginData) {
+    
+    User user = toLogin(loginData);
+    if (user==null) return null;
+    
+    return clientRepository.findClientByUser(user);
+  }
+
+  @Override
+  public String setClientPassword(Integer clientId, String pwd) {
+
+    Client client = clientRepository.findById(clientId).orElseThrow(
+      () -> new ResourceNotFoundException("The staff id " + clientId + " is not found !"));
+    
+    User user = client.getUser();
+
+    return addPassword(user.getUserId(), pwd);
+  }
   
+
 
   // @Autowired
   // private FCMTokenRepository fcmTokenRepository;

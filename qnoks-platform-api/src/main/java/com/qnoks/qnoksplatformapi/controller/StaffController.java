@@ -91,7 +91,7 @@ public class StaffController {
     }
 
     @PutMapping({"/{staffId}/set-status"})
-    public ResponseEntity<ResponseDto<String>> ActivateUser(
+    public ResponseEntity<ResponseDto<String>> ActivateStaff(
         @PathVariable("staffId") Integer staffId, @RequestBody uStatus status) {
             String res = userService.setStaffStatus(staffId, status.getStatus());
         return (res != null) ? ResponseEntity.ok(new ResponseDto<String>(Constants.SUCCESS, res)) :

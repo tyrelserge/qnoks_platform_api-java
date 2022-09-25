@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.qnoks.qnoksplatformapi.entity.Settings;
 import com.qnoks.qnoksplatformapi.entity.Staff;
+import com.qnoks.qnoksplatformapi.entity.Client;
 import com.qnoks.qnoksplatformapi.entity.Role;
 import com.qnoks.qnoksplatformapi.entity.User;
 import com.qnoks.qnoksplatformapi.model.SettingsReq;
@@ -33,4 +34,12 @@ public interface UserService {
     public Staff toStaffLogin(Login loginData);
     public String setStaffPassword(Integer staffId, String pwd);
     public String setStaffStatus(Integer staffId, String status);
+
+    public List<Client> getAllClient();
+    public Object toCreateClient(UserReq data);
+    public Client getClientData(Integer clientId);
+    public String setClientStatus(Integer clientId, String status);
+    public Client toClientLogin(Login loginData);
+    public String setClientPassword(Integer client, String pwd);
+
 }

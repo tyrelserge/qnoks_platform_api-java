@@ -113,8 +113,6 @@ public class UserController {
     //   ResponseEntity.ok(new ResponseDto<String>(Constants.ERROR, null));
     // }
 
-    
-
     //------------------------------------
     //  SETTINGS
     //------------------------------------
